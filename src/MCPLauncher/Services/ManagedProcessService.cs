@@ -4,7 +4,7 @@ using MCPLauncher.Models;
 
 namespace MCPLauncher.Services;
 
-public sealed class ManagedProcessService
+public sealed class ManagedProcessService : IManagedProcessService
 {
     private static readonly TimeSpan TerminationTimeout = TimeSpan.FromSeconds(3);
 
