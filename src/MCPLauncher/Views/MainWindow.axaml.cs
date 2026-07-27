@@ -7,14 +7,19 @@ public sealed partial class MainWindow : Window
 {
     private bool _closeApproved;
 
-    public MainWindow(MainWindowViewModel viewModel)
+    public MainWindow()
     {
         InitializeComponent();
+    }
+
+    public MainWindow(MainWindowViewModel viewModel)
+        : this()
+    {
         ViewModel = viewModel;
         DataContext = ViewModel;
     }
 
-    public MainWindowViewModel ViewModel { get; }
+    public MainWindowViewModel ViewModel { get; } = null!;
 
     private async void OnOpened(object? sender, EventArgs eventArgs) => await ViewModel.InitializeAsync();
 

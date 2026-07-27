@@ -22,6 +22,23 @@ MCP Launcher creates `servers.json` under the current user's local application-d
 
 Entries live under a `servers` object and use a stable, human-readable key. `command` is required; all other fields shown below are optional.
 
+`command` can be an executable name, a full executable path, or a complete command
+line. Using `args` for the arguments is preferred because it avoids quoting
+ambiguity. Executable names registered globally can be used without a path; the
+launcher inherits the user's `PATH` in both debug and published builds.
+
+Paths containing spaces are supported. When a complete command line starts with
+such a path, quote it, for example:
+
+```json
+{
+  "command": "\"C:\\Program Files\\Example MCP\\server.exe\" --serve"
+}
+```
+
+Commands are parsed directly and are not run through a shell, so shell operators
+such as `&&`, pipes, and output redirection are not supported.
+
 ```json
 {
   "servers": {
@@ -34,6 +51,21 @@ Entries live under a `servers` object and use a stable, human-readable key. `com
         "EXAMPLE_API_KEY": "replace-me"
       },
       "port": 3000
+    }
+  }
+}
+```
+
+For example, a globally installed Headroom proxy is configured as:
+
+```json
+{
+  "servers": {
+    "headroom": {
+      "title": "Headroom",
+      "command": "headroom",
+      "args": ["proxy", "--port", "8787"],
+      "port": 8787
     }
   }
 }

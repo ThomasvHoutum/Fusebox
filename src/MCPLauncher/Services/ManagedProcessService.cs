@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Avalonia.Threading;
 using MCPLauncher.Models;
 
@@ -13,18 +14,19 @@ public sealed class ManagedProcessService : IManagedProcessService
         server.State = ServerState.Starting;
         server.ConfigurationAppliedToProcess();
         var run = server.BeginRun();
-        run.AppendLifecycle($"Starting {definition.Command}.");
+        var launch = ResolveLaunch(definition);
+        run.AppendLifecycle($"Starting {FormatCommand(launch.FileName, launch.Arguments)}.");
 
         var startInfo = new ProcessStartInfo
         {
-            FileName = definition.Command,
+            FileName = launch.FileName,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true
         };
 
-        foreach (var argument in definition.Arguments)
+        foreach (var argument in launch.Arguments)
         {
             startInfo.ArgumentList.Add(argument);
         }
@@ -79,6 +81,98 @@ public sealed class ManagedProcessService : IManagedProcessService
             run.Complete("Launch failed.");
         }
     }
+
+    private static (string FileName, IReadOnlyList<string> Arguments) ResolveLaunch(ServerDefinition definition)
+    {
+        // An explicit args array is unambiguous. An existing path must also remain
+        // intact because executable paths can legitimately contain spaces.
+        if (definition.Arguments.Count > 0 ||
+            !definition.Command.Any(char.IsWhiteSpace) ||
+            File.Exists(definition.Command))
+        {
+            return (definition.Command, definition.Arguments);
+        }
+
+        var parts = SplitCommandLine(definition.Command);
+        return parts.Count > 0
+            ? (parts[0], parts.Skip(1).ToArray())
+            : (definition.Command, definition.Arguments);
+    }
+
+    private static IReadOnlyList<string> SplitCommandLine(string commandLine)
+    {
+        var parts = new List<string>();
+        var part = new StringBuilder();
+        var partStarted = false;
+        char? quote = null;
+
+        for (var index = 0; index < commandLine.Length; index++)
+        {
+            var character = commandLine[index];
+            if (quote is not null)
+            {
+                if (character == quote)
+                {
+                    quote = null;
+                }
+                else if (character == '\\' &&
+                         index + 1 < commandLine.Length &&
+                         commandLine[index + 1] == quote)
+                {
+                    part.Append(commandLine[++index]);
+                }
+                else
+                {
+                    part.Append(character);
+                }
+            }
+            else if (character is '"' or '\'')
+            {
+                partStarted = true;
+                quote = character;
+            }
+            else if (char.IsWhiteSpace(character))
+            {
+                AddPart(parts, part, ref partStarted);
+            }
+            else
+            {
+                partStarted = true;
+                part.Append(character);
+            }
+        }
+
+        if (quote is not null)
+        {
+            return [];
+        }
+
+        AddPart(parts, part, ref partStarted);
+        return parts;
+    }
+
+    private static void AddPart(ICollection<string> parts, StringBuilder part, ref bool partStarted)
+    {
+        if (!partStarted)
+        {
+            return;
+        }
+
+        parts.Add(part.ToString());
+        part.Clear();
+        partStarted = false;
+    }
+
+    private static string FormatCommand(string fileName, IReadOnlyList<string> arguments)
+    {
+        var formattedFileName = fileName.Any(char.IsWhiteSpace) ? $"\"{fileName}\"" : fileName;
+        return arguments.Count == 0
+            ? formattedFileName
+            : $"{formattedFileName} {string.Join(" ", arguments.Select(FormatArgument))}";
+    }
+
+    private static string FormatArgument(string argument) =>
+        argument.Any(char.IsWhiteSpace) ? $"\"{argument.Replace("\"", "\\\"")}\"" : argument;
 
     public async Task<StopResult> StopAsync(ServerRuntime server, string endReason)
     {

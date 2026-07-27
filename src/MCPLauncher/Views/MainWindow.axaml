@@ -184,10 +184,10 @@
               BorderThickness="0"
               FontFamily="Cascadia Mono,Consolas,Menlo,monospace"
               IsReadOnly="True"
+              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+              ScrollViewer.VerticalScrollBarVisibility="Auto"
               Text="{Binding SelectedServer.SelectedRun.Output}"
-              TextWrapping="NoWrap"
-              VerticalScrollBarVisibility="Auto"
-              HorizontalScrollBarVisibility="Auto" />
+              TextWrapping="NoWrap" />
         </Border>
       </Grid>
     </Grid>
