@@ -1,0 +1,200 @@
+<Window
+    x:Class="MCPLauncher.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:CompileBindings="False"
+    Title="MCP Launcher"
+    Width="1180"
+    Height="760"
+    MinWidth="860"
+    MinHeight="560"
+    Closing="OnClosing"
+    Opened="OnOpened">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border
+        Grid.Row="0"
+        Padding="20,14"
+        BorderBrush="{DynamicResource ThemeBorderLowBrush}"
+        BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+        <StackPanel>
+          <TextBlock FontSize="24" FontWeight="SemiBold" Text="MCP Launcher" />
+          <TextBlock Opacity="0.65" Text="Start and inspect your local MCP servers in one place." />
+        </StackPanel>
+        <Button
+            Grid.Column="1"
+            Margin="8,0,0,0"
+            VerticalAlignment="Center"
+            Click="OnOpenConfigurationClick"
+            Content="Open configuration" />
+        <Button
+            Grid.Column="2"
+            Margin="8,0,0,0"
+            VerticalAlignment="Center"
+            Click="OnRefreshClick"
+            Content="Refresh" />
+        <TextBlock
+            x:Name="ConfigurationWarningIcon"
+            Grid.Column="3"
+            Margin="10,0,0,0"
+            VerticalAlignment="Center"
+            FontSize="20"
+            Foreground="Orange"
+            Text="" />
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="1" ColumnDefinitions="430,*">
+      <Border
+          Grid.Column="0"
+          Padding="16"
+          BorderBrush="{DynamicResource ThemeBorderLowBrush}"
+          BorderThickness="0,0,1,0">
+        <Grid RowDefinitions="Auto,*">
+          <Grid Margin="4,0,4,12" ColumnDefinitions="*,Auto">
+            <TextBlock FontSize="17" FontWeight="SemiBold" Text="Configured servers" />
+            <TextBlock Grid.Column="1" Opacity="0.65" Text="{Binding ServerCountDisplay}" />
+          </Grid>
+
+          <Grid Grid.Row="1">
+            <ListBox
+                x:Name="ServerList"
+                ItemsSource="{Binding Servers}"
+                SelectedItem="{Binding SelectedServer, Mode=TwoWay}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Border Padding="12" CornerRadius="6">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                      <StackPanel Grid.Row="0">
+                        <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding Title}" />
+                        <TextBlock
+                            Margin="0,2,0,0"
+                            MaxLines="2"
+                            Opacity="0.68"
+                            Text="{Binding Description}"
+                            TextWrapping="Wrap" />
+                      </StackPanel>
+                      <Border
+                          Grid.Row="0"
+                          Grid.Column="1"
+                          Margin="10,0,0,0"
+                          Padding="8,3"
+                          VerticalAlignment="Top"
+                          Background="{DynamicResource ThemeControlLowBrush}"
+                          CornerRadius="10">
+                        <TextBlock FontSize="12" FontWeight="SemiBold" Text="{Binding StateDisplay}" />
+                      </Border>
+
+                      <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,8,0,0" Orientation="Horizontal" Spacing="12">
+                        <TextBlock Opacity="0.65" Text="{Binding Id}" />
+                        <TextBlock FontWeight="SemiBold" Text="{Binding PortDisplay}" />
+                      </StackPanel>
+
+                      <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,7,0,0">
+                        <TextBlock
+                            Foreground="Orange"
+                            Text="{Binding PendingChangesDisplay}" />
+                        <TextBlock
+                            Foreground="Tomato"
+                            Text="{Binding ConfigurationErrorDisplay}"
+                            TextWrapping="Wrap" />
+                      </StackPanel>
+
+                      <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="0,10,0,0" Orientation="Horizontal" Spacing="6">
+                        <Button
+                            Click="OnStartClick"
+                            CommandParameter="{Binding}"
+                            Content="Start"
+                            IsEnabled="{Binding CanStart}" />
+                        <Button
+                            Click="OnStopClick"
+                            CommandParameter="{Binding}"
+                            Content="Stop"
+                            IsEnabled="{Binding CanStop}" />
+                        <Button
+                            Click="OnRestartClick"
+                            CommandParameter="{Binding}"
+                            Content="Restart"
+                            IsEnabled="{Binding CanRestart}" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel
+                x:Name="EmptyState"
+                Margin="30"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsVisible="False"
+                Spacing="8">
+              <TextBlock HorizontalAlignment="Center" FontSize="19" FontWeight="SemiBold" Text="No MCP servers yet" />
+              <TextBlock
+                  MaxWidth="300"
+                  HorizontalAlignment="Center"
+                  Text="Open the configuration file, add a server entry, save it, and then press Refresh."
+                  TextAlignment="Center"
+                  TextWrapping="Wrap" />
+              <Button HorizontalAlignment="Center" Click="OnOpenConfigurationClick" Content="Open configuration" />
+            </StackPanel>
+          </Grid>
+        </Grid>
+      </Border>
+
+      <Grid Grid.Column="1" Margin="20" RowDefinitions="Auto,Auto,*">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel>
+            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{Binding SelectedServer.Title, FallbackValue=Select a server}" />
+            <TextBlock Margin="0,3,0,0" Opacity="0.68" Text="{Binding SelectedServer.Description}" TextWrapping="Wrap" />
+          </StackPanel>
+          <TextBlock
+              Grid.Column="1"
+              Margin="12,4,0,0"
+              FontSize="15"
+              FontWeight="SemiBold"
+              Text="{Binding SelectedServer.StateDisplay}" />
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,18,0,10" ColumnDefinitions="Auto,*">
+          <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="Run" />
+          <ComboBox
+              Grid.Column="1"
+              Width="260"
+              Margin="10,0,0,0"
+              HorizontalAlignment="Left"
+              DisplayMemberBinding="{Binding DisplayName}"
+              ItemsSource="{Binding SelectedServer.Runs}"
+              SelectedItem="{Binding SelectedServer.SelectedRun, Mode=TwoWay}" />
+        </Grid>
+
+        <Border
+            Grid.Row="2"
+            Padding="1"
+            Background="{DynamicResource ThemeControlLowBrush}"
+            CornerRadius="6">
+          <TextBox
+              Padding="14"
+              AcceptsReturn="True"
+              Background="Transparent"
+              BorderThickness="0"
+              FontFamily="Cascadia Mono,Consolas,Menlo,monospace"
+              IsReadOnly="True"
+              Text="{Binding SelectedServer.SelectedRun.Output}"
+              TextWrapping="NoWrap"
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Auto" />
+        </Border>
+      </Grid>
+    </Grid>
+
+    <Border
+        Grid.Row="2"
+        Padding="16,8"
+        BorderBrush="{DynamicResource ThemeBorderLowBrush}"
+        BorderThickness="0,1,0,0">
+      <TextBlock x:Name="StatusText" Opacity="0.7" Text="Loading configuration…" />
+    </Border>
+  </Grid>
+</Window>
