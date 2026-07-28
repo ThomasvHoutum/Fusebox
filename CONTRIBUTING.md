@@ -18,6 +18,6 @@ Thanks for taking the time to contribute.
 
 ## Pull requests
 
-Pull requests must pass the required build check and resolve all review conversations before merging. Changes are squash-merged into `main`.
+Pull requests must pass the required build check and resolve all review conversations before merging. Changes are merged into `main` with a merge commit.
 
 By contributing, you agree that your contribution is licensed under the repository's MIT License.
