@@ -9,8 +9,8 @@ Thanks for taking the time to contribute.
 3. Build the solution in Release configuration:
 
    ```shell
-   dotnet restore MCPLauncher.sln
-   dotnet build MCPLauncher.sln --configuration Release --no-restore -p:TreatWarningsAsErrors=true
+   dotnet restore Fusebox.sln
+   dotnet build Fusebox.sln --configuration Release --no-restore -p:TreatWarningsAsErrors=true
    ```
 
 4. Add or update tests when the project area has automated coverage.

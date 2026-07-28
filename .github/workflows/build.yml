@@ -27,7 +27,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore MCPLauncher.sln
+        run: dotnet restore Fusebox.sln
 
       - name: Build
-        run: dotnet build MCPLauncher.sln --configuration Release --no-restore -p:TreatWarningsAsErrors=true
+        run: dotnet build Fusebox.sln --configuration Release --no-restore -p:TreatWarningsAsErrors=true

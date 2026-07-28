@@ -12,8 +12,8 @@ The current codebase implements the first product-plan workflows: an externally 
 ## Run
 
 ```shell
-dotnet restore MCPLauncher.sln
-dotnet run --project src/MCPLauncher/MCPLauncher.csproj
+dotnet restore Fusebox.sln
+dotnet run --project src/Fusebox/Fusebox.csproj
 ```
 
 Fusebox creates `servers.json` under the current user's local application-data directory the first time it runs. Use **Open configuration** in the application to open the exact file.
