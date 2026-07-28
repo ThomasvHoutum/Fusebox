@@ -34,11 +34,11 @@ public sealed class ServerRun : INotifyPropertyChanged
         private set => SetField(ref _endReason, value);
     }
 
-    public string DisplayName => $"Run {Sequence} — {StartedAt:HH:mm:ss}";
+    public string DisplayName => $"Run {Sequence} - {StartedAt:HH:mm:ss}";
 
     public string Output => _output.ToString();
 
-    public void AppendLifecycle(string message) => Append($"[{DateTimeOffset.Now:HH:mm:ss}] MCP Launcher: {message}");
+    public void AppendLifecycle(string message) => Append($"[{DateTimeOffset.Now:HH:mm:ss}] Fusebox: {message}");
 
     public void AppendStandardOutput(string message) => Append(message);
 

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Fusebox modular server cabinet mark</title>
+
+  <rect x="20" y="20" width="472" height="472" rx="100" fill="#101412"/>
+
+  <!-- Cabinet tab and enclosure -->
+  <rect x="218" y="48" width="76" height="64" rx="20" fill="#4B493E"/>
+  <rect
+    x="66"
+    y="72"
+    width="380"
+    height="374"
+    rx="70"
+    fill="#252720"
+    stroke="#4B493E"
+    stroke-width="24"/>
+  <rect x="96" y="112" width="320" height="304" rx="48" fill="#101412"/>
+
+  <!-- Server modules -->
+  <rect x="124" y="142" width="76" height="184" rx="24" fill="#1B1F1B" stroke="#4B493E" stroke-width="14"/>
+  <rect x="218" y="154" width="76" height="184" rx="24" fill="#1B1F1B" stroke="#4B493E" stroke-width="14"/>
+  <rect x="312" y="142" width="76" height="184" rx="24" fill="#1B1F1B" stroke="#4B493E" stroke-width="14"/>
+
+  <!-- Status indicators -->
+  <circle cx="162" cy="184" r="12" fill="#68665B"/>
+  <circle cx="256" cy="196" r="12" fill="#5FA58F"/>
+  <circle cx="350" cy="184" r="12" fill="#68665B"/>
+
+  <!-- Fuse contacts -->
+  <rect x="142" y="264" width="40" height="16" rx="6" fill="#CE9064"/>
+  <rect x="236" y="276" width="40" height="16" rx="6" fill="#CE9064"/>
+  <rect x="330" y="264" width="40" height="16" rx="6" fill="#CE9064"/>
+
+  <!-- Shared circuit -->
+  <path
+    d="M162 326V352L214 388M256 338V388M350 326V352L298 388"
+    fill="none"
+    stroke="#B77A4F"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="16"/>
+  <rect x="238" y="374" width="36" height="28" rx="9" fill="#CE9064"/>
+</svg>

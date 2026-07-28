@@ -1,6 +1,6 @@
-# MCP Launcher
+# Fusebox
 
-MCP Launcher is an Avalonia desktop application for starting and inspecting local MCP server processes without keeping a separate terminal window open for each one.
+Fusebox is an Avalonia desktop application for starting and inspecting local MCP server processes without keeping a separate terminal window open for each one.
 
 The current codebase implements the first product-plan workflows: an externally edited server catalog, manual refresh, process lifecycle controls, current-session run logs, configuration error handling, and safe shutdown prompts. See [PRODUCT_PLAN.md](PRODUCT_PLAN.md) for the product decisions and validation plan.
 
@@ -16,7 +16,7 @@ dotnet restore MCPLauncher.sln
 dotnet run --project src/MCPLauncher/MCPLauncher.csproj
 ```
 
-MCP Launcher creates `servers.json` under the current user's local application-data directory the first time it runs. Use **Open configuration** in the application to open the exact file.
+Fusebox creates `servers.json` under the current user's local application-data directory the first time it runs. Use **Open configuration** in the application to open the exact file.
 
 ## Configure servers
 
@@ -83,7 +83,7 @@ Environment values are stored as plaintext. Keep the configuration file out of s
 - Preserve the last successfully loaded catalog when the JSON file is unreadable.
 - Stop managed processes when the application closes, with confirmation and force-quit escalation.
 
-MCP Launcher does not install MCP servers, configure MCP clients, discover external processes, validate MCP readiness, or persist logs.
+Fusebox does not install MCP servers, configure MCP clients, discover external processes, validate MCP readiness, or persist logs.
 
 ## Architecture
 

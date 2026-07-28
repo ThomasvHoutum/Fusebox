@@ -2,10 +2,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Fusebox</AssemblyName>
+    <RootNamespace>MCPLauncher</RootNamespace>
+    <Product>Fusebox</Product>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\fusebox.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
@@ -15,5 +19,14 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.0" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.0" />
     <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3" />
+    <PackageReference Include="IconPacks.Avalonia.Lucide" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <None
+        Include="..\..\THIRD-PARTY-NOTICES.txt"
+        Link="THIRD-PARTY-NOTICES.txt"
+        CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

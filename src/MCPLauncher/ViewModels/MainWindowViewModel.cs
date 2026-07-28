@@ -49,7 +49,11 @@ public sealed class MainWindowViewModel : ViewModelBase
     public ServerRuntime? SelectedServer
     {
         get => _selectedServer;
-        set => SetField(ref _selectedServer, value);
+        set
+        {
+            value?.SelectLatestRun();
+            SetField(ref _selectedServer, value);
+        }
     }
 
     public string? ConfigurationWarning
@@ -76,7 +80,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
     public bool HasServers => !IsEmpty;
 
-    public string ServerCountDisplay => Servers.Count == 1 ? "1 server" : $"{Servers.Count} servers";
+    public string ServerCountDisplay => Servers.Count == 1 ? "1 configured" : $"{Servers.Count} configured";
 
     public async Task InitializeAsync()
     {
@@ -92,7 +96,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         catch (Exception exception)
         {
             ConfigurationWarning = $"Configuration setup failed: {exception.Message}";
-            Status = "MCP Launcher could not prepare its configuration file.";
+            Status = "Fusebox could not prepare its configuration file.";
         }
     }
 
@@ -111,7 +115,7 @@ public sealed class MainWindowViewModel : ViewModelBase
 
         var names = string.Join(Environment.NewLine, running.Select(server => $"• {server.Title}"));
         var confirmed = await _interactions.ConfirmAsync(
-            "Close MCP Launcher?",
+            "Close Fusebox?",
             $"Closing will stop these managed servers:\n\n{names}",
             "Stop servers and close",
             "Cancel");
@@ -328,7 +332,7 @@ public sealed class MainWindowViewModel : ViewModelBase
         {
             await _interactions.ShowMessageAsync(
                 "Force quit failed",
-                $"{server.Title} is still running. Stop it through the operating system before closing MCP Launcher.",
+                $"{server.Title} is still running. Stop it through the operating system before closing Fusebox.",
                 "Close");
         }
 

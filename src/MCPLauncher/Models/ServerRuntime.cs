@@ -13,12 +13,18 @@ public sealed class ServerRuntime : INotifyPropertyChanged
     private bool _actionsBlocked;
     private ServerState _state;
     private ServerRun? _selectedRun;
+    private Process? _process;
 
     public ServerRuntime(string id, ServerDefinition? definition, string? configurationError)
     {
         Id = id;
         _definition = definition;
         _configurationError = configurationError;
+        Runs.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(RunCountDisplay));
+            OnPropertyChanged(nameof(HasNoRuns));
+        };
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -43,6 +49,23 @@ public sealed class ServerRuntime : INotifyPropertyChanged
 
     public string PortDisplay => Definition?.Port is int port ? $"Port {port}" : string.Empty;
 
+    public string PortValueDisplay => Definition?.Port?.ToString() ?? "-";
+
+    public string CommandDisplay
+    {
+        get
+        {
+            if (Definition is null)
+            {
+                return "-";
+            }
+
+            return Definition.Arguments.Count == 0
+                ? Definition.Command
+                : $"{Definition.Command} {string.Join(" ", Definition.Arguments.Select(FormatArgument))}";
+        }
+    }
+
     public string? ConfigurationError
     {
         get => _configurationError;
@@ -51,6 +74,7 @@ public sealed class ServerRuntime : INotifyPropertyChanged
             if (SetField(ref _configurationError, value))
             {
                 OnPropertyChanged(nameof(ConfigurationErrorDisplay));
+                OnPropertyChanged(nameof(HasServerNotice));
                 RaiseActionProperties();
             }
         }
@@ -66,11 +90,14 @@ public sealed class ServerRuntime : INotifyPropertyChanged
             if (SetField(ref _hasPendingChanges, value))
             {
                 OnPropertyChanged(nameof(PendingChangesDisplay));
+                OnPropertyChanged(nameof(HasServerNotice));
             }
         }
     }
 
     public string PendingChangesDisplay => HasPendingChanges ? "Changes apply after restart" : string.Empty;
+
+    public bool HasServerNotice => HasPendingChanges || ConfigurationError is not null;
 
     public bool ActionsBlocked
     {
@@ -92,22 +119,60 @@ public sealed class ServerRuntime : INotifyPropertyChanged
             if (SetField(ref _state, value))
             {
                 OnPropertyChanged(nameof(StateDisplay));
+                OnPropertyChanged(nameof(IsRunning));
+                OnPropertyChanged(nameof(IsTransitioning));
+                OnPropertyChanged(nameof(IsFailed));
                 RaiseActionProperties();
             }
         }
     }
 
-    public string StateDisplay => State.ToString();
+    public string StateDisplay => State == ServerState.Failed ? "Faulted" : State.ToString();
+
+    public bool IsRunning => State == ServerState.Running;
+
+    public bool IsTransitioning => State is ServerState.Starting or ServerState.Stopping;
+
+    public bool IsFailed => State == ServerState.Failed;
 
     public ObservableCollection<ServerRun> Runs { get; } = [];
 
     public ServerRun? SelectedRun
     {
         get => _selectedRun;
-        set => SetField(ref _selectedRun, value);
+        set => SetField(ref _selectedRun, value ?? Runs.LastOrDefault());
     }
 
-    public Process? Process { get; set; }
+    public string RunCountDisplay => Runs.Count.ToString();
+
+    public bool HasNoRuns => Runs.Count == 0;
+
+    public Process? Process
+    {
+        get => _process;
+        set
+        {
+            if (SetField(ref _process, value))
+            {
+                OnPropertyChanged(nameof(ProcessIdDisplay));
+            }
+        }
+    }
+
+    public string ProcessIdDisplay
+    {
+        get
+        {
+            try
+            {
+                return Process?.Id.ToString() ?? "-";
+            }
+            catch (InvalidOperationException)
+            {
+                return "-";
+            }
+        }
+    }
 
     public ServerRun? CurrentRun { get; set; }
 
@@ -151,11 +216,15 @@ public sealed class ServerRuntime : INotifyPropertyChanged
         return run;
     }
 
+    public void SelectLatestRun() => SelectedRun = Runs.LastOrDefault();
+
     private void RaiseDisplayProperties()
     {
         OnPropertyChanged(nameof(Title));
         OnPropertyChanged(nameof(Description));
         OnPropertyChanged(nameof(PortDisplay));
+        OnPropertyChanged(nameof(PortValueDisplay));
+        OnPropertyChanged(nameof(CommandDisplay));
         RaiseActionProperties();
     }
 
@@ -180,4 +249,7 @@ public sealed class ServerRuntime : INotifyPropertyChanged
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    private static string FormatArgument(string argument) =>
+        argument.Any(char.IsWhiteSpace) ? $"\"{argument.Replace("\"", "\\\"")}\"" : argument;
 }
