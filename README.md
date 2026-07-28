@@ -6,7 +6,7 @@ The current codebase implements the first product-plan workflows: an externally 
 
 ## Prerequisites
 
-- .NET 8 SDK
+- .NET 10 SDK
 - Windows as the primary platform, or macOS for validation
 
 ## Run
