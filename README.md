@@ -2,6 +2,8 @@
 
 Fusebox is an Avalonia desktop application for starting and inspecting local MCP server processes without keeping a separate terminal window open for each one.
 
+![Fusebox showing local MCP server controls and live output](docs/images/fusebox-demo.png)
+
 The current codebase implements the first product-plan workflows: an externally edited server catalog, manual refresh, process lifecycle controls, current-session run logs, configuration error handling, and safe shutdown prompts.
 
 ## Prerequisites
@@ -17,6 +19,37 @@ dotnet run --project src/Fusebox/Fusebox.csproj
 ```
 
 Fusebox creates `servers.json` under the current user's local application-data directory the first time it runs. Use **Open configuration** in the application to open the exact file.
+
+## Build for distribution
+
+The following commands create self-contained, single-file Release builds. Users do
+not need to install .NET separately.
+
+### Windows (64-bit)
+
+```shell
+dotnet publish src/Fusebox/Fusebox.csproj --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output artifacts/publish/win-x64
+```
+
+The distributable executable is `artifacts/publish/win-x64/Fusebox.exe`.
+
+### macOS (Apple Silicon)
+
+```shell
+dotnet publish src/Fusebox/Fusebox.csproj --configuration Release --runtime osx-arm64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output artifacts/publish/osx-arm64
+```
+
+The executable is `artifacts/publish/osx-arm64/Fusebox`.
+
+### macOS (Intel)
+
+```shell
+dotnet publish src/Fusebox/Fusebox.csproj --configuration Release --runtime osx-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output artifacts/publish/osx-x64
+```
+
+The executable is `artifacts/publish/osx-x64/Fusebox`.
+
+Run each publish command on its target operating system.
 
 ## Configure servers
 
