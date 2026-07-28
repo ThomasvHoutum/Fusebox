@@ -81,3 +81,7 @@ The application follows classic MVVM boundaries:
 - `Services` gives each external concern a focused implementation: configuration-file storage, JSON parsing, process supervision, platform file opening, and user interaction.
 
 `App` is the composition root. It creates the concrete services, injects them into `MainWindowViewModel`, and then assigns that view model to the window. The view does not parse configuration, manage processes, or implement application workflows.
+
+## License
+
+Fusebox is available under the [MIT License](LICENSE).
