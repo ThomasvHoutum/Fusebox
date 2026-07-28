@@ -165,6 +165,18 @@
       <Setter Property="FontSize" Value="17" />
     </Style>
 
+    <Style Selector="Button.bulk">
+      <Setter Property="MinHeight" Value="32" />
+      <Setter Property="Padding" Value="10,6" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style Selector="Button.compact">
+      <Setter Property="Width" Value="30" />
+      <Setter Property="MinHeight" Value="30" />
+      <Setter Property="Padding" Value="7" />
+    </Style>
+
     <Style Selector="ComboBox">
       <Setter Property="MinHeight" Value="34" />
       <Setter Property="Padding" Value="11,6" />

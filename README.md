@@ -25,7 +25,7 @@ Prebuilt macOS packages are not currently published. To use Fusebox on macOS,
 4. Return to Fusebox and select **Refresh**.
 5. Select the server and press **Start**.
 
-## Configure servers
+## Configure servers and profiles
 
 Entries live under a `servers` object and use a stable, human-readable key:
 
@@ -79,6 +79,72 @@ validates the newest definition before stopping the existing process.
 Environment values are stored as plaintext. Keep the configuration file out of
 source control, shared folders, and inappropriate backups.
 
+### Server profiles
+
+The optional top-level `profiles` object groups configured servers without moving
+them to a separate file. Each profile key is its stable identifier. `servers` is
+required; `title` and `description` are optional.
+
+```json
+{
+  "servers": {
+    "api": {
+      "title": "API Server",
+      "description": "Local application API",
+      "command": "example-api",
+      "args": ["--serve"],
+      "port": 3000
+    },
+    "search": {
+      "title": "Search Server",
+      "command": "example-search",
+      "port": 3001
+    }
+  },
+  "profiles": {
+    "development": {
+      "title": "Development",
+      "description": "Servers used for local development",
+      "servers": ["api", "search"]
+    }
+  }
+}
+```
+
+| Profile field | Required | Type | Default | Purpose |
+| --- | --- | --- | --- | --- |
+| Profile key | Yes | String | — | Stable profile identifier. |
+| `servers` | Yes | Array of strings | — | Server IDs included in the profile. |
+| `title` | No | String | Profile key | Display name on the profile card and workspace. |
+| `description` | No | String | Empty | Short explanation shown with the profile controls. |
+
+Duplicate server IDs in a profile are de-duplicated in their first-seen order, so
+a server is never operated twice. Unknown IDs produce a visible warning but do not
+prevent valid servers or the profile from loading. An empty profile is valid and
+has no available bulk actions. Malformed profiles are reported alongside other
+configuration errors while valid catalog data remains available.
+
+Profiles and servers appear together in the catalog rail, with profiles first.
+Use the rail selector to show **All**, **Servers**, or **Profiles**. Selecting a
+profile opens its workspace with its title, description, aggregate runtime counts,
+bulk controls, and a card for every valid referenced server. Selecting a server
+card opens that server's normal detail and live-output workspace. Each profile
+server card also exposes Start, Stop, and Restart without leaving the profile.
+
+The built-in **All servers** profile represents the complete catalog. **Start all**
+starts stopped or faulted servers and skips servers already running. **Stop all**
+stops running servers and skips stopped servers. **Restart all** restarts running
+servers and starts stopped or faulted servers. Stopping or restarting more than one
+running server requires confirmation and lists every affected server.
+
+Bulk operations run sequentially in profile order. This keeps process state,
+force-quit prompts, and result summaries deterministic. A failure or canceled
+force-quit affects that server only; Fusebox continues with the remaining servers
+and reports the final counts. Start all and Restart all reread and validate the
+configuration once before changing process state. If that read fails, no running
+server is stopped. Changes to running entries continue to show as pending until
+restart.
+
 ## MCP transport compatibility
 
 Fusebox supervises local processes and captures their standard output and error. It
@@ -94,6 +160,8 @@ with it.
 
 - Run one managed process per configured entry, with multiple entries running
   concurrently.
+- Filter servers by profile and control the selected profile or complete catalog
+  with safe bulk actions.
 - Start, stop, and restart managed processes.
 - Show Stopped, Starting, Running, Stopping, and Failed process states.
 - Keep output in separate runs for the current application session.

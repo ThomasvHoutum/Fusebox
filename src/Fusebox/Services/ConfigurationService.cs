@@ -49,5 +49,5 @@ public sealed class ConfigurationService : IConfigurationService
         }
     }
 
-    private static ConfigurationLoadResult Unreadable(string error) => new(false, [], [error]);
+    private static ConfigurationLoadResult Unreadable(string error) => new(false, [], [], [error]);
 }

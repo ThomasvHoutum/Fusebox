@@ -1,0 +1,217 @@
+<UserControl
+    x:Class="Fusebox.Views.ProfileWorkspaceView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
+    x:CompileBindings="False">
+  <Grid Margin="20" RowDefinitions="Auto,Auto,*">
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="9">
+          <TextBlock FontSize="25" FontWeight="SemiBold" Text="{Binding SelectedProfile.Title}" />
+          <Border
+              Width="22"
+              Height="22"
+              Margin="2,2,0,0"
+              Background="{DynamicResource WarningSurfaceBrush}"
+              CornerRadius="3"
+              IsVisible="{Binding SelectedProfile.HasWarnings}"
+              ToolTip.Tip="{Binding SelectedProfile.WarningDisplay}">
+            <iconPacks:PackIconLucide
+                Width="13"
+                Height="13"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Foreground="{DynamicResource WarningBrush}"
+                Kind="TriangleAlert" />
+          </Border>
+        </StackPanel>
+        <TextBlock
+            Margin="0,4,0,0"
+            Classes="secondary"
+            FontSize="12"
+            MaxWidth="720"
+            Text="{Binding SelectedProfile.Description}"
+            TextWrapping="Wrap" />
+      </StackPanel>
+      <StackPanel Grid.Column="1" Margin="18,0,0,0" Orientation="Horizontal" Spacing="7">
+        <Button Classes="start" Command="{Binding StartAllCommand}" IsEnabled="{Binding CanStartAll}" ToolTip.Tip="{Binding StartAllToolTip}">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <iconPacks:PackIconLucide Width="15" Height="15" Kind="Play" />
+            <TextBlock Text="Start all" />
+          </StackPanel>
+        </Button>
+        <Button Classes="stop" Command="{Binding StopAllCommand}" IsEnabled="{Binding CanStopAll}" ToolTip.Tip="{Binding StopAllToolTip}">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <iconPacks:PackIconLucide Width="15" Height="15" Kind="Square" />
+            <TextBlock Text="Stop all" />
+          </StackPanel>
+        </Button>
+        <Button Classes="restart" Command="{Binding RestartAllCommand}" IsEnabled="{Binding CanRestartAll}" ToolTip.Tip="{Binding RestartAllToolTip}">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <iconPacks:PackIconLucide Width="15" Height="15" Kind="RotateCcw" />
+            <TextBlock Text="Restart all" />
+          </StackPanel>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Border Grid.Row="1" Margin="0,18,0,14" Classes="card" Padding="14,11">
+      <Grid ColumnDefinitions="1.2*,1*,1*">
+        <StackPanel>
+          <TextBlock Classes="eyebrow" Text="SERVERS" />
+          <TextBlock Margin="0,4,0,0" Classes="secondary" FontSize="12" Text="{Binding SelectedProfile.ServerCountDisplay}" />
+        </StackPanel>
+        <StackPanel Grid.Column="1">
+          <TextBlock Classes="eyebrow" Text="RUNTIME" />
+          <TextBlock Margin="0,4,0,0" Classes="secondary" FontSize="12" Text="{Binding ProfileCountSummary}" />
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+          <TextBlock Classes="eyebrow" Text="RESTART ALL" />
+          <TextBlock Margin="0,4,0,0" Classes="secondary" FontSize="11" Text="Restarts running servers and starts stopped servers." TextWrapping="Wrap" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="2">
+      <ScrollViewer IsVisible="{Binding !IsProfileEmpty}" VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding VisibleServers}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border
+                  Width="300"
+                  MinHeight="158"
+                  Margin="0,0,12,12"
+                  Padding="14"
+                  Classes="card">
+                <Grid RowDefinitions="Auto,Auto,*,Auto">
+                  <Button
+                      Padding="0"
+                      HorizontalContentAlignment="Stretch"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      Command="{Binding DataContext.NavigateToServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      CommandParameter="{Binding}"
+                      ToolTip.Tip="Open server details">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <Border
+                          Width="29"
+                          Height="29"
+                          Background="#171A17"
+                          BorderBrush="{DynamicResource BorderStrongBrush}"
+                          BorderThickness="1"
+                          CornerRadius="4">
+                        <iconPacks:PackIconLucide
+                            Width="15"
+                            Height="15"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Foreground="{DynamicResource CopperBrush}"
+                            Kind="Server" />
+                      </Border>
+                      <StackPanel Grid.Column="1" Margin="10,0,8,0">
+                        <TextBlock FontSize="14" FontWeight="SemiBold" Text="{Binding Title}" />
+                        <TextBlock Margin="0,3,0,0" Classes="muted" FontSize="11" Text="{Binding Id}" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <Border
+                            Classes="status-dot"
+                            Classes.failed="{Binding IsFailed}"
+                            Classes.running="{Binding IsRunning}"
+                            Classes.transitioning="{Binding IsTransitioning}" />
+                        <TextBlock
+                            Classes="status-text"
+                            Classes.failed="{Binding IsFailed}"
+                            Classes.running="{Binding IsRunning}"
+                            Classes.transitioning="{Binding IsTransitioning}"
+                            FontSize="11"
+                            Text="{Binding StateDisplay}" />
+                      </StackPanel>
+                    </Grid>
+                  </Button>
+                  <TextBlock
+                      Grid.Row="1"
+                      Margin="0,10,0,0"
+                      Classes="secondary"
+                      FontSize="11"
+                      MaxLines="2"
+                      Text="{Binding Description}"
+                      TextTrimming="CharacterEllipsis"
+                      TextWrapping="Wrap" />
+                  <TextBlock
+                      Grid.Row="2"
+                      Margin="0,8,0,8"
+                      Classes="muted"
+                      FontFamily="Cascadia Mono,Consolas,monospace"
+                      FontSize="10"
+                      MaxLines="1"
+                      Text="{Binding CommandDisplay}"
+                      TextTrimming="CharacterEllipsis" />
+                  <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="6">
+                    <Button
+                        Classes="start compact"
+                        Command="{Binding DataContext.StartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding CanStart}"
+                        ToolTip.Tip="Start server">
+                      <iconPacks:PackIconLucide Width="14" Height="14" Kind="Play" />
+                    </Button>
+                    <Button
+                        Classes="stop compact"
+                        Command="{Binding DataContext.StopCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding CanStop}"
+                        ToolTip.Tip="Stop server">
+                      <iconPacks:PackIconLucide Width="14" Height="14" Kind="Square" />
+                    </Button>
+                    <Button
+                        Classes="restart compact"
+                        Command="{Binding DataContext.RestartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}"
+                        IsEnabled="{Binding CanRestart}"
+                        ToolTip.Tip="Restart server">
+                      <iconPacks:PackIconLucide Width="14" Height="14" Kind="RotateCcw" />
+                    </Button>
+                    <Button
+                        Classes="compact"
+                        Command="{Binding DataContext.NavigateToServerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}"
+                        ToolTip.Tip="Open server details">
+                      <iconPacks:PackIconLucide Width="14" Height="14" Kind="ExternalLink" />
+                    </Button>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+      <StackPanel
+          HorizontalAlignment="Center"
+          VerticalAlignment="Center"
+          IsVisible="{Binding IsProfileEmpty}"
+          Spacing="9">
+        <iconPacks:PackIconLucide
+            Width="34"
+            Height="34"
+            HorizontalAlignment="Center"
+            Foreground="{DynamicResource CopperBrush}"
+            Kind="Folder" />
+        <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="SemiBold" Text="No available servers" />
+        <TextBlock
+            MaxWidth="330"
+            Classes="secondary"
+            FontSize="12"
+            Text="This profile is empty or all of its configured server references are invalid."
+            TextAlignment="Center"
+            TextWrapping="Wrap" />
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>
