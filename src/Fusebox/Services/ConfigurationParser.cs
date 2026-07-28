@@ -24,7 +24,9 @@ public sealed class ConfigurationParser
                 return Unreadable("The configuration must contain a 'servers' object.");
             }
 
-            return ParseEntries(servers);
+            var entries = ParseEntries(servers);
+            var profiles = ParseProfiles(document.RootElement, entries);
+            return new ConfigurationLoadResult(true, entries, profiles, []);
         }
         catch (JsonException exception)
         {
@@ -32,7 +34,7 @@ public sealed class ConfigurationParser
         }
     }
 
-    private static ConfigurationLoadResult ParseEntries(JsonElement servers)
+    private static IReadOnlyList<ConfigurationEntry> ParseEntries(JsonElement servers)
     {
         var properties = servers.EnumerateObject().ToList();
         var duplicateIds = properties
@@ -59,7 +61,102 @@ public sealed class ConfigurationParser
             }
         }
 
-        return new ConfigurationLoadResult(true, entries, []);
+        return entries;
+    }
+
+    private static IReadOnlyList<ProfileEntry> ParseProfiles(
+        JsonElement root,
+        IReadOnlyList<ConfigurationEntry> serverEntries)
+    {
+        if (!root.TryGetProperty("profiles", out var profiles))
+        {
+            return [];
+        }
+
+        if (profiles.ValueKind != JsonValueKind.Object)
+        {
+            return [new ProfileEntry("profiles", null, "'profiles' must be an object.")];
+        }
+
+        var properties = profiles.EnumerateObject().ToList();
+        var duplicateIds = properties
+            .GroupBy(property => property.Name, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToHashSet(StringComparer.Ordinal);
+        var knownServerIds = serverEntries
+            .Where(entry => entry.IsValid)
+            .Select(entry => entry.Id)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var entries = new List<ProfileEntry>();
+        foreach (var property in properties)
+        {
+            var id = property.Name;
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                entries.Add(new ProfileEntry("<empty key>", null, "The profile key cannot be empty."));
+            }
+            else if (duplicateIds.Contains(id))
+            {
+                entries.Add(new ProfileEntry(id, null, $"The profile key '{id}' is duplicated. Every profile key must be unique."));
+            }
+            else
+            {
+                entries.Add(ParseProfile(id, property.Value, knownServerIds));
+            }
+        }
+
+        return entries;
+    }
+
+    private static ProfileEntry ParseProfile(string id, JsonElement element, IReadOnlySet<string> knownServerIds)
+    {
+        if (element.ValueKind != JsonValueKind.Object)
+        {
+            return new ProfileEntry(id, null, "The profile entry must be a JSON object.");
+        }
+
+        var title = ReadOptionalString(element, "title");
+        var description = ReadOptionalString(element, "description");
+        if (title.Error is not null || description.Error is not null)
+        {
+            return new ProfileEntry(id, null, title.Error ?? description.Error);
+        }
+
+        if (!element.TryGetProperty("servers", out var servers) || servers.ValueKind != JsonValueKind.Array)
+        {
+            return new ProfileEntry(id, null, "'servers' is required and must be an array of server IDs.");
+        }
+
+        var values = servers.EnumerateArray().ToList();
+        if (values.Any(value => value.ValueKind != JsonValueKind.String))
+        {
+            return new ProfileEntry(id, null, "Every value in profile 'servers' must be a string.");
+        }
+
+        var serverIds = values
+            .Select(value => value.GetString()!)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        if (serverIds.Any(string.IsNullOrWhiteSpace))
+        {
+            return new ProfileEntry(id, null, "Profile server IDs cannot be empty.");
+        }
+
+        var warnings = serverIds
+            .Where(serverId => !knownServerIds.Contains(serverId))
+            .Select(serverId => $"Unknown server reference '{serverId}'.")
+            .ToList();
+        return new ProfileEntry(
+            id,
+            new ProfileDefinition(
+                id,
+                title.Value ?? id,
+                description.Value ?? string.Empty,
+                serverIds,
+                warnings),
+            null);
     }
 
     private static ConfigurationEntry ParseEntry(string id, JsonElement element)
@@ -169,5 +266,5 @@ public sealed class ConfigurationParser
 
     private static ConfigurationEntry Invalid(string id, string error) => new(id, null, error);
 
-    private static ConfigurationLoadResult Unreadable(string error) => new(false, [], [error]);
+    private static ConfigurationLoadResult Unreadable(string error) => new(false, [], [], [error]);
 }
