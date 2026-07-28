@@ -2,7 +2,7 @@
 
 Fusebox is an Avalonia desktop application for starting and inspecting local MCP server processes without keeping a separate terminal window open for each one.
 
-The current codebase implements the first product-plan workflows: an externally edited server catalog, manual refresh, process lifecycle controls, current-session run logs, configuration error handling, and safe shutdown prompts. See [PRODUCT_PLAN.md](PRODUCT_PLAN.md) for the product decisions and validation plan.
+The current codebase implements the first product-plan workflows: an externally edited server catalog, manual refresh, process lifecycle controls, current-session run logs, configuration error handling, and safe shutdown prompts.
 
 ## Prerequisites
 
@@ -51,21 +51,6 @@ such as `&&`, pipes, and output redirection are not supported.
         "EXAMPLE_API_KEY": "replace-me"
       },
       "port": 3000
-    }
-  }
-}
-```
-
-For example, a globally installed Headroom proxy is configured as:
-
-```json
-{
-  "servers": {
-    "headroom": {
-      "title": "Headroom",
-      "command": "headroom",
-      "args": ["proxy", "--port", "8787"],
-      "port": 8787
     }
   }
 }
